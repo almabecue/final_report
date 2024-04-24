@@ -1,0 +1,123 @@
+---
+title: "Final Report"
+subtitle: "Maternal Mortality, a fight for every women"
+author: "Margaux Becue"
+date: "2024-04-23"
+format: html
+theme: solar
+execute:
+  echo: false
+  warning: false
+  message: false
+---
+```{r}
+#| label: gapminder-pop
+#| include: false
+
+#libraries
+library(tidyverse)
+library(plotly)
+library(ggplot2)
+library(viridisLite)
+
+
+#data
+
+unicef_indicator_2 <- read_delim("unicef_indicator_2.csv", 
+    delim = ";", escape_double = FALSE, trim_ws = TRUE)
+mapdata <- map_data("world") ##ggplot2
+
+localisation <- read_delim("localisation.csv", 
+                           delim = ";", escape_double = FALSE, trim_ws = TRUE)
+
+md_region_2020 <- read_delim("md_region_2020.csv", 
+                             delim = ";", escape_double = FALSE, trim_ws = TRUE)
+
+unicef_indicator_2 <- read_delim("unicef_indicator_2.csv", 
+                                 delim = ";", escape_double = FALSE, trim_ws = TRUE)
+unicef_indicator_1 <- read_delim("unicef_indicator_1.csv", 
+                                 delim = ";", escape_double = FALSE, trim_ws = TRUE)
+Nigeria <- read_delim("Nigeria.csv", delim = ";", 
+                      escape_double = FALSE, trim_ws = TRUE)
+
+#transformations
+
+mapdata <- full_join(mapdata,unicef_indicator_2)
+data_2020 <- md_region_2020%>% full_join(localisation, by = c("region"="country"))
+Law_data <- full_join(unicef_indicator_1,unicef_indicator_2)
+```
+---
+ **Global Challenge**: Maternal deaths have decreased by 34% since 2000, but it's slow (2.1% annually). We're not on track to Sustainable Development Goals which is 6.4% annually before 2030. Troubling trend emerges: **setbacks** in regions between 2016 and 2020 (Western Europe, North America, Latin America and the Caribbean, as seen in the following table). Sub-Saharan Africa accounts for a staggering 70% (shown on Map). Terminology: *"woman"/"women"* encompasses all people with reproductive capacity.
+
+```{r}
+mapdata <- map_data("world") ##ggplot2
+
+mapdata <- full_join(mapdata,unicef_indicator_2)
+
+mapdatal<-mapdata%>% filter(!is.na(mapdata$maternal_deaths_estimated))
+map1<-ggplot(mapdatal,aes(x=long, y=lat, group=group))+ geom_polygon(aes(fill=maternal_deaths_estimated), color="black")
+
+map2 <- map1 + scale_fill_gradient(name = "% maternal_deaths_estimated", low = "violet", high =  "red", na.value = "grey50")+
+  theme(axis.text.x = element_blank(),
+        axis.text.y = element_blank(),
+        axis.ticks = element_blank(),
+        axis.title.y=element_blank(),
+        axis.title.x=element_blank(),
+        rect = element_blank())
+map2
+```
+
+**Leading causes of Maternal mortality**: severe bleeding, high blood pressure, infections, and unsafe abortions, pre-existing health issues. Sudden and preventable: most deaths are preventable with skilled healthcare attendance during childbirth. Healthcare matters but can be double-edged: ***A well-functioning health system with enough resources and respectful treatment can significantly improve outcomes. Conversely, a poorly functioning system can make things worse.***
+
+```{r}
+data_2020 <- md_region_2020%>% full_join(localisation, by = c("region"="country"))
+
+
+colnames(data_2020)[1] <- "country"
+
+data_2020$country <- as.character(data_2020$country)
+data_2020$country[data_2020$country == "USA"] <- "United States of America"
+data_2020$country[data_2020$country == "UK"] <- "United Kingdom"
+data_2020$country[data_2020$country == "Republic of Congo"] <- "Republic of the Congo"
+data_2020$country[data_2020$country == "Democratic Republic of the Congo"] <- "Congo"
+
+ggplot(data_2020) +
+  aes(Region, maternal_deaths_estimated, color=Region) +
+  geom_line()+
+  theme(plot.title = element_text(size = rel(1)),
+        strip.text = element_text(face="bold", size=9,lineheight=5.0), #title by column
+        axis.text.x = element_blank()) #remove x-axis legend here
+```
+
+The concept of "embodiment" emphasizes that social and environmental factors are integrated into a woman's physical and mental health during pregnancy (ex: *Poverty can worsen existing health issues*).
+
+```{r}
+Law_data <- full_join(unicef_indicator_1,unicef_indicator_2)
+
+plot(Law_data$maternal_deaths_estimated,Law_data$legal_frameworks_pourcentage,
+     main= "Estimated number of deaths on pourcentage of legal frameworkds present", 
+     xlab= "% Maternal deaths", ylab = "% of legal frameworks present")
+
+abline(lm(Law_data$legal_frameworks_pourcentage~Law_data$maternal_deaths_estimated),
+       col= "violet")
+
+```
+
+## Case Study of Nigeria
+
+This case study focuses on Nigeria's *high maternal mortality rate*, which stood at **81747** in 2020, categorizing it as a stage 1 country in the Transition Model. Maternal death stems also from social and economic factors, as illustrated by the correlation between gender equity law enforcement and maternal deaths. ***We note Nigeria's low ranking in gender equality laws and highly high maternal death compared to countries like Australia, which have lower maternal mortality rates.***
+
+```{r}
+barplot(Nigeria$pourcentage_women_gave_birth_before_18,Nigeria$year,
+        names.arg=c("2003","2008","2011","2013","2017","2018"), 
+        ylab = "% women who gave birth before 18 years old", 
+        col=Nigeria$pourcentage_women_gave_birth_before_18)
+
+barplot(Nigeria$Percentage_deliveries_skilled_health_personnel,Nigeria$year,
+        names.arg=c("2003","2008","2011","2013","2017","2018"), 
+        ylab = "% deliveries by skilled health personel", 
+        col=Nigeria$Percentage_deliveries_skilled_health_personnel)
+```
+## Hope persists 
+
+Some countries have significantly reduced maternal mortality (annual MMR reductions exceeding 15%). In the case of Nigeria, we can note a **satisfying rise in deliveries attended by medical personnel and care for the babies post-natal and a decrease in the number of women having a child before 18 years**. The solution: every woman needs essential prenatal care, skilled birth attendance, and postnatal care. Investments, improved healthcare access, and strong partnerships are critical, especially in high-risk areas. Equity is the goal: ***We can create a world where all women have a safe pregnancy and childbirth by tackling healthcare disparities***.
