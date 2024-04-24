@@ -1,0 +1,28 @@
+---
+title: "Untitled"
+format: html
+execute: 
+  echo: false
+  warning: false
+---
+
+```{r}
+#|label: setup
+#|include: false
+
+library(tidyverse)
+
+#data
+titanic <- read.csv("C:/Users/almab/OneDrive/Bureau/Master 2 DCU/MT5000 Data Analytics and Story Telling/titanic.csv")
+```
+
+
+```{r}
+ggplot(titanic)+
+  aes(Age, Fare)+
+  geom_point()
+  
+
+```
+
+

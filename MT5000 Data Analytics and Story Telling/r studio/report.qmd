@@ -1,0 +1,15 @@
+---
+title: "my_first_quarto.qmd"
+format: html
+execute:
+  echo: false
+  warning: false
+  message: false
+---
+## A journey without an end
+
+R sometimes *drives* me **insane**
+
+### An exercice in patience
+
+
